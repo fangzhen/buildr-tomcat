@@ -15,6 +15,7 @@ Installation
 
 Usage
 -----
+###For embedded tomcat###
 
 	require 'tomcat'
 	
@@ -44,6 +45,35 @@ Usage
 		...
 
 	end
+
+###For standalone tomcat###
+	require 'tomcatSa'
+	
+	desc 'This is my project'
+	...
+	define 'MyProject' do
+
+		define "my-webapp" do
+			compile.with # some dependencies here
+			package(:war)
+
+			task("tomcat-deploy"=>package(:war)) do |task|
+			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self) # username/passwd which have "manager-script" role.
+			  tomcat.deploy
+			end
+			task("tomcat-redeploy"=>package(:war)) do |task|
+			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self)
+			  tomcat.redeploy
+			end
+			task("tomcat-undeploy") do |task|
+			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self)
+			  tomcat.undeploy
+			end
+			...
+		end 
+		...
+	end
+
 
 Modification
 ------------

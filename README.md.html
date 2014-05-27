@@ -1,0 +1,66 @@
+<h1 id="buildr-tomcat">buildr-tomcat</h1>
+<p>buildr-tomcat provides a plugin for Buildr that allows you to run a war-packaged project in an embedded Tomcat.</p>
+<p>It is largely based on the Jetty plugin, but is somewhat simplified.</p>
+<h2 id="installation">Installation</h2>
+<pre><code>git clone https://github.com/technophobia/buildr-tomcat.git
+cd buildr-tomcat
+./build.sh
+gem install ./buildr-tomcat-0.0.1.gem</code></pre>
+<h2 id="usage">Usage</h2>
+<h3 id="for-embedded-tomcat">For embedded tomcat</h3>
+<pre><code>require &#39;tomcat&#39;
+
+...
+
+desc &#39;This is my project&#39;
+
+define &#39;MyProject&#39; do
+
+    define &quot;my-webapp&quot; do
+        compile.with # some dependencies here
+        package(:war)
+
+        task(&#39;tomcat&#39;) do |task|
+            name = &#39;my-webapp&#39;
+            Buildr::Tomcat::explode(self)
+            Buildr::Tomcat.new(name, &quot;http://localhost:8084/#{name}&quot;, &quot;#{name}/target/#{name}-#{VERSION_NUMBER}&quot;).run
+
+            trap &#39;SIGINT&#39; do
+                puts &quot;Stopping Tomcat&quot;
+                tomcat.stop
+            end
+            Thread.stop
+        end
+    end
+
+    ...
+
+end</code></pre>
+<h3 id="for-standalone-tomcat">For standalone tomcat</h3>
+<pre><code>require &#39;tomcatSa&#39;
+    desc &#39;This is my project&#39;
+
+define &#39;MyProject&#39; do
+
+    define &quot;my-webapp&quot; do
+        compile.with # some dependencies here
+        package(:war)
+
+        task(&quot;tomcat-deploy&quot;=&gt;package(:war)) do |task|
+          tomcat = Buildr::TomcatSa.new(&#39;username&#39;, &#39;passwd&#39;, self) # username/passwd which have &quot;manager-script&quot; role.
+          tomcat.deploy
+        end
+        task(&quot;tomcat-redeploy&quot;=&gt;package(:war)) do |task|
+          tomcat = Buildr::TomcatSa.new(&#39;username&#39;, &#39;passwd&#39;, self)
+          tomcat.redeploy
+        end
+        task(&quot;tomcat-undeploy&quot;) do |task|
+          tomcat = Buildr::TomcatSa.new(&#39;username&#39;, &#39;passwd&#39;, self)
+          tomcat.undeploy
+        end
+        
+    end 
+end</code></pre>
+<h2 id="modification">Modification</h2>
+<p>If you need to modify the Java code (in <em>java/src/main/java</em>), there's a Buildr <em>buildfile</em> in <em>java/</em>. Simply execute '''buildr eclipse''' to generate the necessary Eclipse project files, and import as usual. (You can do IDEA too, if that's your thing).</p>
+<p>You can rebuild the whole thing (including the Java) and repackage as a Gem by running '''build.sh'''.</p>
