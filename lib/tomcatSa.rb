@@ -13,14 +13,11 @@ module Buildr
 		#   instance() => TomcatSa
 		#
 		# Returns an instance of TomcatSa.
-		def initialize(username, password, webapp=nil, 
-					   url='http://localhost:8080', 
-					   manager = '/manager/text')
-			@username = username
-			@password = password
+		def initialize(webapp=nil)
+			@username, @password, @url = Buildr.settings.user['tomcat'].values_at('username', 'password', 'url')
+			@url ||= 'http://localhost:8080'
+			@managerApp = '/manager/text'
 			@webapp = webapp
-			@managerApp = manager
-			@url = url
 			pname = @webapp.name.split(':').last #project name without parent project, e.g. bar
 			qname = @webapp.name.gsub(':', '-') #project name with parent name, e.g. foo-bar
 			version = @webapp.version

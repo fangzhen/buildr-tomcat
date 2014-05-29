@@ -47,6 +47,8 @@ Usage
 	end
 
 ###For standalone tomcat###
+1. configuration of buildfile
+
 	require 'tomcatSa'
 	
 	desc 'This is my project'
@@ -58,22 +60,27 @@ Usage
 			package(:war)
 
 			task("tomcat-deploy"=>package(:war)) do |task|
-			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self) # username/passwd which have "manager-script" role.
+			  tomcat = Buildr::TomcatSa.new(self) #
 			  tomcat.deploy
 			end
 			task("tomcat-redeploy"=>package(:war)) do |task|
-			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self)
+			  tomcat = Buildr::TomcatSa.new(self)
 			  tomcat.redeploy
 			end
 			task("tomcat-undeploy") do |task|
-			  tomcat = Buildr::TomcatSa.new('username', 'passwd', self)
+			  tomcat = Buildr::TomcatSa.new(self)
 			  tomcat.undeploy
 			end
 			...
 		end 
 		...
 	end
-
+2. tomcat settings
+add following lines to you settings.yaml in ~/.buildr
+	tomcat:
+	  username: tomcats #tomcat user who has "manager-script" role
+	  password: tomcat
+	  url: http://localhost:8080  # url default to http://localhost:8080
 
 Modification
 ------------
